@@ -2,14 +2,13 @@ package com.dysjsjy;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
+import io.netty.handler.timeout.IdleStateHandler;
 
 public class NettyServer {
     public static void main(String[] args) {
@@ -22,12 +21,8 @@ public class NettyServer {
                     protected void initChannel(SocketChannel ch) throws Exception {
                         ch.pipeline().addLast(new StringDecoder());
                         ch.pipeline().addLast(new StringEncoder());
-                        ch.pipeline().addLast(new SimpleChannelInboundHandler<String>() {
-                            @Override
-                            protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
-                                System.out.println(msg);
-                            }
-                        });
+                        ch.pipeline().addLast(new IdleStateHandler(60, 0, 0)); // 心跳检测
+                        ch.pipeline().addLast(new ChatServerHandler());
                     }
 
                 });
